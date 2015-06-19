@@ -42,6 +42,7 @@ class IcebergAPI(IcebergRequestBase):
             resources.ChannelPropagationPolicy,
             resources.Country,
             resources.Category,
+            resources.HipayTransaction,
             resources.MarketPlaceTransaction,
             resources.MerchantAddress,
             resources.MerchantCommissionSettings,
