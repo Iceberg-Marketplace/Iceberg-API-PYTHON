@@ -34,7 +34,7 @@ export ICEBERG_APPLICATION_NAMESPACE=my_app
 export ICEBERG_APPLICATION_SECRET_KEY=XXXXXX
 ```
 
-### Log in 
+### Log in
 
 * There are two ways to log in:
  * By calling the <code>sso()</code> method on the **IcebergAPI()** class, and passing 3 parameters wich are the user mail, first name and last name.
@@ -90,7 +90,7 @@ api_handler.ProductOffer.find("52").save()
 ProductOffer
 -------------
 
-Offers differs from products, a product can not be added to a cart, the product is the physical object defined by its brand, model, colors etc ... When someone by a product on a marketplace, he actually orders an offer linked to a product from a specific merchant.<br>
+Offers differs from products, a product can not be added to a cart, the product is the physical object defined by its brand, model, colors etc ... When someone buys a product on a marketplace, he actually orders an offer linked to a product from a specific merchant.<br>
 We are here going to deal with offers, or more accurately **productOffers**.
 
 ### Get productOffer
@@ -154,7 +154,7 @@ user_cart = api_handler.Cart.mine()
 print user_cart.shipping_address
 print user_cart.shipping_amount
 print user_cart.total_amount
-    
+
 ```
 
 ### Add an offer to cart
@@ -249,4 +249,19 @@ print store.url
 ```
 
 
+Payment specific features
+-------------
+
+### Hipay specific requirements
+
+If you have chosen Hipay as payment backend, you will need to set up at least one redirection route letting you ask for a transaction status refresh. At first this route is a way for your users to fall back to your website once their payment is completed. Most importantly, it is also a way to request a hipay transaction status refresh letting your orders go from **initial** state to **authorized** state is case of payment success.
+
+To achieve this refresh action, you will have to set up a route handling the GET parameter 'order_id'. After that, you want the route to internally call the "HipayTransaction.update_order_status" update_order_status method as follow:
+
+```python
+
+refresh_result = api_handler.HipayTransaction().update_order_status(order_id)
+```
+
+**Note: If you do not set this feature up, your orders will never go to authorized state and you won't sell anything.**
 
