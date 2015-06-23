@@ -219,10 +219,6 @@ class IcebergUnitTestCase(unittest.TestCase, IcebergObjectCreateMixin):
                 # not break the stack trace.
                 raise
 
-
-        # Create Card Alias
-        import urllib, urllib2
-
         # get hipay page url to authorize payment
         url = form_data['paymentFormRedirectionUrl']
         # ask selenium to fill theCredit Card authorization form.
