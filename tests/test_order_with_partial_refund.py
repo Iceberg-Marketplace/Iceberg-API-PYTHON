@@ -11,7 +11,7 @@ class ClientOrder(IcebergUnitTestCase):
         cart = self.api_handler.Cart()
         cart.save()
         offer = self.get_random_offer()
-        
+
         if hasattr(offer, 'variations') and len(offer.variations) > 0:
             for variation in offer.variations:
                 print variation
@@ -23,7 +23,7 @@ class ClientOrder(IcebergUnitTestCase):
             cart.addOffer(offer)
 
         cart.fetch()
-        
+
     def test_02_full_order(self):
         """
         Full order
@@ -34,6 +34,7 @@ class ClientOrder(IcebergUnitTestCase):
         })
         self.my_context_dict['application'] = application
         self.full_order(number_of_offers=3, application=application)
+        self.authenticate_mango_order()
 
     def test_03_confirm_merchant_order(self):
         """
@@ -43,7 +44,7 @@ class ClientOrder(IcebergUnitTestCase):
         merchant_order = self.my_context_dict['merchant_order']
         merchant_order.confirm()
 
-            
+
     def test_04_create_return(self):
         """
         Create Return
@@ -63,10 +64,10 @@ class ClientOrder(IcebergUnitTestCase):
             return_request.comment = u"Têst Mèssâge Rétürn Çômmënt"
             return_request.save()
             return_requests.append(return_request)
-        
+
         self.my_context_dict['return_requests'] = return_requests
         self.my_context_dict['order_item_not_refunded'] = order_item_not_refunded
-        
+
     def test_05_accept_return(self):
         """
         Accept Return Requests
@@ -75,8 +76,8 @@ class ClientOrder(IcebergUnitTestCase):
         return_requests = self.my_context_dict['return_requests']
         for return_request in return_requests:
             return_request.accept()
-        
-        
+
+
     def test_06_create_first_refund(self):
         """
         Create First Refund
@@ -93,7 +94,7 @@ class ClientOrder(IcebergUnitTestCase):
         refund.shipping = merchant_order.shipping_vat_included
         refund.adjustment = 0
         refund.memo = u"Mémô"
-        refund.seller_note = u"Séllèr Nötè" 
+        refund.seller_note = u"Séllèr Nötè"
         refund.sync = True
         refund.save()
         self.my_context_dict['refund'] = refund
@@ -127,7 +128,7 @@ class ClientOrder(IcebergUnitTestCase):
 
         mp_transactions = self.api_handler.MarketPlaceTransaction.search(args={"transaction":refund_transaction.id})[0]
         ## if we find some mp_transactions, there should be revenue sharing # TODO make a call to know if revenue sharing
-        has_revenue_sharing = len(mp_transactions) > 0 
+        has_revenue_sharing = len(mp_transactions) > 0
         if has_revenue_sharing:
             self.assertEqual(len(mp_transactions), 1)
             mp_refund_transaction = mp_transactions[0]
@@ -185,9 +186,9 @@ class ClientOrder(IcebergUnitTestCase):
         return_request.comment = u"Têst Mèssâge Rétürn Çômmënt"
         return_request.save()
         return_requests.append(return_request)
-        
+
         self.my_context_dict['return_requests'] = return_requests
-        
+
     def test_09_accept_return(self):
         """
         Accept the other Return Requests
@@ -196,8 +197,8 @@ class ClientOrder(IcebergUnitTestCase):
         return_requests = self.my_context_dict['return_requests']
         for return_request in return_requests:
             return_request.accept()
-        
-        
+
+
     def test_10_create_partial_refund(self):
         """
         Create Partial Refund
@@ -214,7 +215,7 @@ class ClientOrder(IcebergUnitTestCase):
         refund.shipping = 0
         refund.adjustment = 0
         refund.memo = u"Mémô"
-        refund.seller_note = u"Séllèr Nötè" 
+        refund.seller_note = u"Séllèr Nötè"
         refund.sync = True
         refund.save()
         self.my_context_dict['refund'] = refund
@@ -251,7 +252,7 @@ class ClientOrder(IcebergUnitTestCase):
 
         mp_transactions = self.api_handler.MarketPlaceTransaction.search(args={"transaction":refund_transaction.id})[0]
         ## if we find some mp_transactions, there should be revenue sharing # TODO make a call to know if revenue sharing
-        has_revenue_sharing = len(mp_transactions) > 0 
+        has_revenue_sharing = len(mp_transactions) > 0
         if has_revenue_sharing:
             self.assertEqual(len(mp_transactions), 1)
             mp_refund_transaction = mp_transactions[0]

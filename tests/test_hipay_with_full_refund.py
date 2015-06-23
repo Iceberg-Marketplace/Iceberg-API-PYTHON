@@ -34,7 +34,7 @@ class ClientOrder(IcebergUnitTestCase):
         })
         self.my_context_dict['application'] = application
         self.full_order(number_of_offers=1, application=application)
-        self.authenticate_mango_order()
+        self.authenticate_hipay_order()
 
     def test_03_confirm_merchant_order(self):
         """
