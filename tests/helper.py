@@ -239,8 +239,11 @@ class IcebergUnitTestCase(unittest.TestCase, IcebergObjectCreateMixin):
             driver.find_element_by_id("cardSecurityCode").send_keys('666')
             driver.find_element_by_id("submit-button").click()
 
-            # sleep for 5 seconds so selenium has the time to do its job
-            time.sleep(5)
+            while True:
+                # sleep for 5 seconds so selenium has the time to do its job
+                time.sleep(5)
+                if "hipay" not in driver.current_url:
+                    break
         finally:
             driver.quit()
 
