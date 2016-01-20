@@ -6,6 +6,7 @@ from icebergsdk.resources.application import Application, ApplicationCommissionS
                                              ApplicationTransaction, ApplicationPaymentSettings, ApplicationUrls, ApplicationPermission
 from icebergsdk.resources.order import Order, MerchantOrder, OrderItem
 from icebergsdk.resources.cart import Cart, CartItem
+from icebergsdk.resources.hipay import HipayTransaction
 from icebergsdk.resources.product import Product, ProductOffer, ProductVariation, ProductOfferImage, Category, Brand,\
                                             ProductFamily, ProductFamilySelector
 from icebergsdk.resources.store import Store, MerchantImage, MerchantAddress, StoreBankAccount,\

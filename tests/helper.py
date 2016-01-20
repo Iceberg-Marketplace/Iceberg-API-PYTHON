@@ -10,6 +10,7 @@ from icebergsdk.api import IcebergAPI
 
 from helpers.objects_shortcuts_mixin import IcebergObjectCreateMixin
 from icebergsdk.exceptions import IcebergClientError
+from selenium.webdriver.support.select import Select
 
 def get_api_handler():
     if os.getenv('ICEBERG_DEBUG', False):
@@ -88,25 +89,25 @@ class IcebergUnitTestCase(unittest.TestCase, IcebergObjectCreateMixin):
 
 
 
-    def full_order(self, offer_ids=None, number_of_offers=1):
+    def full_order(self, application=None, offer_ids=None, number_of_offers=1):
         """
-        Full order
+        Full order.
         """
         self.login()
 
         cart = self.api_handler.Cart()
         cart.save()
-        
+
         offers = []
-        
+
         if offer_ids:
             for offer_id in offer_ids:
                 offers.append(self.api_handler.ProductOffer.find(offer_id))
         else:
 
             for i in xrange(number_of_offers):
-                offers.append(self.get_random_offer())
-            
+                offers.append(self.get_random_offer(application=application))
+
 
         for offer in offers:
             if hasattr(offer, 'variations') and len(offer.variations) > 0:
@@ -134,6 +135,13 @@ class IcebergUnitTestCase(unittest.TestCase, IcebergObjectCreateMixin):
             cart.save()
 
         self.assertEqual(cart.status, "20") # Valide
+
+        self.my_context_dict['cart'] = cart
+
+    def authenticate_mango_order(self):
+        """ Call authentication with mango specific interactions
+        """
+        cart = self.my_context_dict['cart']
 
         api_user = self.api_handler.User.me()
 
@@ -184,6 +192,68 @@ class IcebergUnitTestCase(unittest.TestCase, IcebergObjectCreateMixin):
 
         self.my_context_dict['order'] = order
         self.my_context_dict['merchant_order'] = order.merchant_orders[0]
+
+    def authenticate_hipay_order(self):
+        """ Call authentication with hipay specific interactions
+        """
+        cart = self.my_context_dict['cart']
+
+        api_user = self.api_handler.User.me()
+
+        order = cart.createOrder({
+            # authenticate order as an end-user.
+            'operator':False,
+        })
+
+        try:
+            form_data = cart.form_data()
+        except IcebergClientError, e:
+            if 90001 in e.error_codes and api_user.is_staff: # User Birthday
+                profile = api_user.profile()
+                profile.birth_date = datetime.strptime('Jun 3 1980', '%b %d %Y')
+                profile.save()
+
+                form_data = cart.form_data()
+            else:
+                # use raise without exception to forward original exception and
+                # not break the stack trace.
+                raise
+
+        # get hipay page url to authorize payment
+        url = form_data['paymentFormRedirectionUrl']
+        # ask selenium to fill theCredit Card authorization form.
+        from selenium import webdriver
+        driver = webdriver.Chrome()
+        try:
+            import time
+            driver.get(url)
+            time.sleep(3) # Wait 5 secs to be sure browser will go to step2
+            # fill the form with 3DSecure disabled credit card. Be careful if
+            # you set hipay up with a authentication indicator greater than 1
+            driver.find_element_by_id("cardNumber").send_keys('4111111111111111')
+            driver.find_element_by_id("cardHolder").send_keys('Yves D')
+            month = Select(driver.find_element_by_id("cardExpiryMonth"))
+            month.select_by_index(3)
+            year = Select(driver.find_element_by_id("cardExpiryYear"))
+            year.select_by_index(3)
+            driver.find_element_by_id("cardSecurityCode").send_keys('666')
+            driver.find_element_by_id("submit-button").click()
+
+            while True:
+                # sleep for 5 seconds so selenium has the time to do its job
+                time.sleep(5)
+                if "hipay" not in driver.current_url:
+                    break
+        finally:
+            driver.quit()
+
+
+        order.authorizeOrder({
+            "operator":False
+        })
+        self.my_context_dict['order'] = order
+        self.my_context_dict['merchant_order'] = order.merchant_orders[0]
+
 
     def pass_3d_secure_page(self, url):
         import time
