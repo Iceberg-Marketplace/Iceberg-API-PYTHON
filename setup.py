@@ -18,7 +18,7 @@ def load_requirements(*filepaths):
     return requirements
 
 setup(
-    name='icebergsdk',
+    name='izberg-sdk',
     version=version,
     description='IZBERG Marketplace API Client for Python',
     author='IZBERG',
