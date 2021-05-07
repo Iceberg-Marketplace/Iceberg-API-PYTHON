@@ -85,7 +85,7 @@ class ConfigurationStage(ConfigurationBase):
     PreProd configuration. Share same database as Prod
     """
     ICEBERG_API_URL = os.getenv("STAGE_API_URL", "https://api.stage.iceberg.technology")
-    ICEBERG_API_PORT = ICEBERG_API_URL.startswith("https://") else 80
+    ICEBERG_API_PORT = 443 if ICEBERG_API_URL.startswith("https://") else 80
     ICEBERG_CORS = ICEBERG_API_URL + "/cors/"
     ICEBERG_API_URL_FULL = "%s:%s" % (ICEBERG_API_URL, ICEBERG_API_PORT)
     ICEBERG_ENV = "stage"
